@@ -1,0 +1,126 @@
+{
+  "title": "Settings",
+  "intro": "Defaults for new generations, notifications and your plan.",
+  "signInRequired": {
+    "title": "Sign In Required",
+    "body": "You need to sign in to access your settings",
+    "action": "Sign In"
+  },
+  "captions": {
+    "title": "Caption defaults",
+    "description": "Applied to every new generation. You can still change them per video.",
+    "font": "Font",
+    "selectFont": "Select font",
+    "size": "Size",
+    "fontSize": "Font size",
+    "color": "Color",
+    "captionColor": "Caption color {color}",
+    "customColor": "Custom color",
+    "customCaptionColor": "Custom caption color",
+    "captionColorHex": "Caption color hex",
+    "preview": "Caption preview",
+    "sample": "Your subtitle will look like this"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "description": "How we let you know your clips are ready.",
+    "emails": "Completion emails",
+    "emailsHint": "Get an email as soon as a generation finishes."
+  },
+  "plan": {
+    "title": "Plan & billing",
+    "paidDescription": "Manage your subscription and invoices.",
+    "freeDescription": "Pick the plan that fits how much you clip.",
+    "usageUnlimited": "{count} this period",
+    "noneYet": "No video minutes included yet. Choose a plan below to start clipping.",
+    "clippedThisPeriod": "{count} videos clipped this period",
+    "allUsedRefresh": "All {limit} used, refreshes on {date}",
+    "allUsedPeriod": "All {limit} used this month",
+    "usedRefresh": "{count} of {limit} videos used · refreshes on {date}",
+    "usedPeriod": "{count} of {limit} videos used this period",
+    "appStore": "Managed outside WeberslinkClip",
+    "affiliate": "Complimentary plan",
+    "manage": "Manage Billing",
+    "loading": "Loading...",
+    "openingCheckout": "Opening checkout…",
+    "upgrade": "Upgrade",
+    "upgradeMultiplier": "Get {multiplier}× more video with {plan}",
+    "upgradeMore": "Do more with {plan}",
+    "upgradeDescription": "${price}/mo · {minutes} a month · {resolution} · YouTube up to {length}",
+    "choose": "Choose {name}",
+    "actionFailed": "Billing action failed",
+    "usageMinutesOf": "{used} / {limit} min",
+    "usageMinutes": "{used} min this month",
+    "minutesThisMonth": "{used} minutes of video clipped this month",
+    "leftRefresh": "{left} of video left · refreshes on {date}",
+    "leftPeriod": "{left} of video left this month",
+    "clipsResolution": "Clips in {resolution}",
+    "clipsResolutionLegacy": "Clips in {resolution}, kept from your original plan while you stay subscribed",
+    "billedYearly": "billed yearly",
+    "upgradeMultiplierHd": "Get {multiplier}× more video in {resolution} with {plan}",
+    "switchYearlyTitle": "Switch to yearly and get {count, plural, one {# month} other {# months}} free",
+    "switchYearlyDescription": "${price}/yr, about ${monthly}/mo. Same plan, billed once a year.",
+    "switch": "Switch",
+    "monthlyEquivalentYearly": "${price}/mo, billed yearly"
+  },
+  "links": {
+    "socialTitle": "Social accounts",
+    "socialDescription": "Connect YouTube, TikTok and Instagram to publish clips and track performance"
+  },
+  "save": {
+    "saved": "Preferences saved successfully!",
+    "unsaved": "Unsaved changes",
+    "button": "Save Preferences",
+    "saving": "Saving...",
+    "failed": "Failed to save preferences"
+  },
+  "toasts": {
+    "upgraded": "Your plan has been upgraded. Enjoy the extra room!",
+    "ready": "You're all set. Time to make some clips!"
+  },
+  "deleteAccount": {
+    "title": "Danger zone",
+    "description": "Irreversible actions for your account.",
+    "label": "Delete account",
+    "hint": "Permanently delete your account, generations, clips and API keys.",
+    "action": "Delete account",
+    "deleting": "Deleting...",
+    "dialogTitle": "Delete your account?",
+    "dialogBody": "This permanently deletes your account, all generations and clips, and revokes your API keys. This can't be undone.",
+    "appStore": "Your subscription is managed outside WeberslinkClip. Deleting your account doesn't cancel it, so cancel it first to stop being charged.",
+    "confirm": "Type <strong>{email}</strong> to confirm",
+    "password": "Password",
+    "failed": "Failed to delete account"
+  },
+  "paymentFailed": {
+    "message": "Your last payment failed. Update your payment method to keep your plan.",
+    "action": "Update payment method",
+    "failed": "Unable to open the billing portal",
+    "paused": "Clipping is paused until this payment goes through."
+  },
+  "cancel": {
+    "scheduled": "Your subscription is scheduled to cancel on <strong>{date}</strong>.",
+    "why": "Let us know why",
+    "restart": "Restart subscription",
+    "dialogTitle": "Why are you cancelling?",
+    "dialogBody": "Your answer goes straight to the team and helps us fix what isn't working.",
+    "placeholder": "What made you decide to cancel?",
+    "send": "Send",
+    "restarted": "Your subscription will renew as normal.",
+    "thanks": "Thanks for letting us know.",
+    "restartFailed": "Unable to restart subscription",
+    "feedbackFailed": "Failed to send feedback",
+    "genericError": "Something went wrong"
+  },
+  "fonts": {
+    "delete": "Delete {name}",
+    "supportFor": "Language support for {name}",
+    "supportTitle": "{name}: language support",
+    "unchecked": "Language coverage could not be checked. Preview your captions to confirm the characters display correctly.",
+    "supported": "Supported: ",
+    "none": "No complete language coverage detected.",
+    "unsupported": "Not fully supported (common languages): ",
+    "all": "All supported languages ({count})",
+    "fallback": "Missing characters use a fallback font and may look different. Coverage is checked from this font file; preview captions for uncommon characters."
+  }
+}

@@ -1,0 +1,132 @@
+{
+  "metadata": {
+    "title": "WeberslinkClip | Turn long videos into short clips",
+    "description": "Upload or paste a long video and get captioned vertical clips for YouTube Shorts, TikTok and Reels. The AI picks the best moments, crops to 9:16 and syncs captions word by word.",
+    "openGraphDescription": "Turn long videos into captioned vertical clips for Shorts, TikTok and Reels. Free during early bird.",
+    "twitterDescription": "AI clip selection, word-synced captions and 9:16 crops. Free during early bird.",
+    "keywords": {
+      "clipper": "AI video clipper",
+      "shorts": "YouTube Shorts clipper",
+      "longToShorts": "long video to shorts",
+      "maker": "AI clip maker",
+      "captions": "video captions"
+    },
+    "structured": {
+      "software": "An AI video clipper that finds the best moments in a long video, crops them to vertical, adds word-synced captions and exports short-form clips.",
+      "featureDiscovery": "AI clip selection with scoring",
+      "featureCrop": "Face-aware 9:16 vertical crop",
+      "featureCaptions": "Word-synced captions",
+      "featureExports": "Exports for YouTube Shorts, TikTok and Instagram Reels",
+      "offerCategory": "Early bird: free",
+      "website": "Turn long videos into short clips."
+    }
+  },
+  "footer": {
+    "tagline": "Turn long videos into short clips.",
+    "operator": "A product by {company}.",
+    "product": "Product",
+    "company": "Company",
+    "contact": "Contact"
+  },
+  "nav": {
+    "howItWorks": "How it works",
+    "features": "Features",
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "getStarted": "Get started free",
+    "toggleMenu": "Toggle menu"
+  },
+  "hero": {
+    "badge": "Early bird: free while we're in early access",
+    "titleLine1": "Record once.",
+    "titleLine2": "Post all week.",
+    "body": "Paste a link or upload a long video. WeberslinkClip finds the moments worth posting, crops them to vertical and adds captions that follow every word.",
+    "startClipping": "Start clipping free",
+    "seePricing": "See pricing",
+    "sources": {
+      "label": "Clip from",
+      "upload": "Your own files"
+    },
+    "note": "No card needed for the early bird plan."
+  },
+  "steps": {
+    "eyebrow": "How it works",
+    "title": "From long video to ready clips in three steps",
+    "items": {
+      "drop": {
+        "title": "Add your video",
+        "description": "Paste a YouTube, Twitch or Kick link, or upload your own file."
+      },
+      "gold": {
+        "title": "We find the moments",
+        "description": "The transcript is read word by word and the strongest stretches are picked and scored."
+      },
+      "export": {
+        "title": "Edit, download or post",
+        "description": "Adjust anything in the editor, then download the clip or send it to YouTube, TikTok or Instagram."
+      }
+    }
+  },
+  "features": {
+    "eyebrow": "Features",
+    "title": "Everything between the recording and the post",
+    "body": "Each step is handled for you, and every clip stays editable.",
+    "items": {
+      "find": {
+        "title": "Clip selection",
+        "description": "The AI reads the transcript and picks the moments that stand on their own, each with a score."
+      },
+      "crop": {
+        "title": "Vertical framing",
+        "description": "Face detection keeps the speaker centered in a 9:16 frame."
+      },
+      "captions": {
+        "title": "Word-synced captions",
+        "description": "Captions follow the speech word by word. Pick a style, a font and a size."
+      },
+      "hook": {
+        "title": "Hook titles",
+        "description": "A short headline over the first seconds of each clip, written for you and editable."
+      },
+      "editor": {
+        "title": "Built-in editor",
+        "description": "Trim, split and merge clips, fix a word, restyle captions and reframe."
+      },
+      "export": {
+        "title": "Export and publish",
+        "description": "Download for TikTok, Reels or Shorts, or connect your accounts and post from the task page."
+      }
+    }
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "title": "Free to start. Simple plans after that.",
+    "body": "Early bird access is free. Paid plans are month-to-month and you can cancel any time.",
+    "period": {
+      "month": "/month",
+      "free": "free"
+    },
+    "earlyBird": {
+      "name": "Early bird",
+      "badge": "Free for now",
+      "description": "Everything you need to turn long videos into clips, at no cost while we're in early access.",
+      "cta": "Start free"
+    },
+    "pro": {
+      "description": "For a steady flow of clips every month.",
+      "cta": "Choose Starter"
+    },
+    "scale": {
+      "description": "For teams posting clips every day.",
+      "cta": "Choose Studio"
+    },
+    "tracking": "Clip performance tracking",
+    "exports": "Download your clips in TikTok, Reels and Shorts formats",
+    "note": "Prices in US dollars. Plans renew monthly and you can cancel from settings."
+  },
+  "cta": {
+    "title": "Your next video is already a week of content.",
+    "body": "Create a free account and clip your first video in minutes.",
+    "button": "Start clipping free"
+  }
+}
