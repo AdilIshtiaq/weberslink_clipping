@@ -1,31 +1,55 @@
-# Deploying WeberslinkClip on a Hostinger VPS
+# Deploying WeberslinkClip on a server (Oracle Cloud or any VPS)
 
 This puts the app at **https://clip.weberslink.org**, with its API at **https://clip-api.weberslink.org**. HTTPS certificates are issued and renewed automatically.
 
-Hostinger's regular web or Node hosting cannot run this app. It needs Docker, ffmpeg, PostgreSQL, Redis and background workers, so you need a **VPS**.
+The app needs Docker, ffmpeg, PostgreSQL, Redis and background workers, so it needs a server of its own. Shared web hosting, Node hosting and GitHub cannot run it. The steps below use **Oracle Cloud**; any Ubuntu VPS works the same way from step 4 on.
 
-## 1. Get a VPS
+## 1. Create the server (Oracle Cloud)
 
-In hPanel, choose **VPS** and a plan with at least **2 vCPU, 8 GB RAM and 100 GB disk** (KVM 2). Video processing is heavy, so KVM 4 (4 vCPU, 16 GB) is more comfortable once several people use it. When asked for an operating system, pick **Ubuntu 24.04 with Docker**. Note the server's IP address.
+In the Oracle Cloud console choose **Compute → Instances → Create instance**:
 
-## 2. Point two DNS names at the server
+- **Image:** Ubuntu 24.04.
+- **Shape:** `VM.Standard.A1.Flex` (Ampere ARM), **4 OCPU and 24 GB RAM**. That fits in Oracle's Always Free allowance and is plenty for video work. If the console says "Out of capacity", try another availability domain or retry later.
+- Do **not** use the tiny `VM.Standard.E2.1.Micro` shape (1 GB RAM). It cannot process video.
+- **Boot volume:** 100 GB or more.
+- Add your SSH public key, then create the instance and note its **public IP**.
+- Make the IP permanent: open the instance, then Attached VNICs → IPv4 addresses → edit, and choose a **Reserved public IP**. Otherwise it can change when the instance restarts.
 
-Where `weberslink.org` DNS is managed (hPanel → Domains → DNS / Nameservers → DNS records), add two **A records** that both point to the VPS IP:
+## 2. Open the network, in two places
+
+Oracle blocks web traffic twice. You need both.
+
+1. **Oracle's network rules.** Go to Networking → Virtual cloud networks → your VCN → Security Lists → Default → **Add ingress rules**. Add two rules with source `0.0.0.0/0`, protocol TCP, and destination ports `80` and `443`.
+2. **The server's own firewall.** On the server (after step 4 connects you), run:
+
+```bash
+sudo iptables -I INPUT 5 -p tcp --dport 80 -j ACCEPT
+sudo iptables -I INPUT 5 -p tcp --dport 443 -j ACCEPT
+sudo iptables -I INPUT 5 -p udp --dport 443 -j ACCEPT
+sudo apt-get install -y iptables-persistent && sudo netfilter-persistent save
+```
+
+## 3. Point two DNS names at the server
+
+Where `weberslink.org` DNS is managed, add two **A records** that both point to the server's public IP:
 
 | Type | Name | Points to |
 |---|---|---|
-| A | `clip` | your VPS IP |
-| A | `clip-api` | your VPS IP |
+| A | `clip` | your server IP |
+| A | `clip-api` | your server IP |
 
 Wait a few minutes. Check with `nslookup clip.weberslink.org`.
 
-## 3. Open the firewall
-
-Allow ports **22** (SSH), **80** and **443** only. In hPanel this is VPS → Security → Firewall. The database and Redis are not exposed outside the server.
-
 ## 4. Install the app
 
-Connect with SSH, then:
+Connect with SSH (`ssh ubuntu@YOUR_SERVER_IP`) and install Docker:
+
+```bash
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER && newgrp docker
+```
+
+Then get the app:
 
 ```bash
 git clone https://github.com/AdilIshtiaq/weberslink_clipping.git
@@ -39,6 +63,13 @@ In `.env`, fill in the secrets. Generate each of `BETTER_AUTH_SECRET`, `BACKEND_
 
 ```bash
 openssl rand -hex 32
+```
+
+**On the Oracle ARM shape**, also set these two lines in `.env` (the template has them commented out):
+
+```env
+BACKEND_PLATFORM=linux/arm64
+BACKEND_CPU_ONLY=true
 ```
 
 You also need an AssemblyAI key, an AI model key (Google by default) and AWS SES credentials (accounts cannot be verified without email). Stripe is only needed once you sell Starter or Studio.
@@ -92,7 +123,7 @@ Accounts and clip records live in PostgreSQL. Back it up regularly:
 docker exec weberslinkclip-postgres pg_dump -U weberslinkclip weberslinkclip | gzip > backup-$(date +%F).sql.gz
 ```
 
-Uploaded videos and rendered clips are in the Docker volumes `uploads` and `clips`. Hostinger's VPS snapshot or backup feature covers them.
+Uploaded videos and rendered clips are in the Docker volumes `uploads` and `clips`. Oracle boot volume backups (Block Storage → Boot Volumes → Backups) cover them.
 
 ## Troubleshooting
 
