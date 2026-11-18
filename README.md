@@ -64,6 +64,10 @@ The first start takes a few minutes; follow it with `docker-compose logs -f`. Th
 
 Services: frontend (Next.js), backend API (FastAPI), video worker, AI-edit worker, cron worker, PostgreSQL and Redis.
 
+## Run on your computer without Docker
+
+See [LOCAL.md](LOCAL.md). In short: install Node, pnpm, uv, ffmpeg, PostgreSQL and Redis, then run `bash scripts/local/setup.sh` once and `bash scripts/local/run.sh` to start.
+
 ## Development
 
 ```bash

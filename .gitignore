@@ -25,3 +25,6 @@ docs/youtube-provider-registry*.json
 
 # Local agent checkouts
 .claude/worktrees/
+
+# Local run data (uploads, clips, logs)
+/data/
