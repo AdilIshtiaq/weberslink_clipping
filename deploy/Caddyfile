@@ -1,0 +1,19 @@
+# Reverse proxy with automatic HTTPS (Let's Encrypt). Used by docker-compose.prod.yml.
+# Both DNS names must point at this server before the first start.
+
+{$APP_DOMAIN:clip.weberslink.org} {
+	encode zstd gzip
+	reverse_proxy frontend:3107
+}
+
+{$API_DOMAIN:clip-api.weberslink.org} {
+	encode zstd gzip
+	# Browser uploads go straight to the API; the app allows files up to 4 GB.
+	request_body {
+		max_size 5GB
+	}
+	# flush_interval -1 keeps live progress (server-sent events) streaming.
+	reverse_proxy backend:8000 {
+		flush_interval -1
+	}
+}
