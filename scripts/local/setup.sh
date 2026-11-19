@@ -119,7 +119,16 @@ mkdir -p data/logs
 echo "Installing backend packages (large the first time, because it includes torch; later runs are fast).."
 ( cd backend && uv sync )
 echo "Installing and building the frontend..."
-( cd frontend && pnpm install --frozen-lockfile && pnpm run build )
+( cd frontend && pnpm install --frozen-lockfile )
+# On Windows, when the project is on a different drive than your user folder (for example D: and C:),
+# Next.js's file tracer scans the whole user folder and fails on protected folders. Pointing the
+# "home folder" at a small folder inside the project for this one build step avoids it.
+if [ -n "${USERPROFILE:-}" ]; then
+  mkdir -p frontend/.home
+  ( cd frontend && USERPROFILE="$(pwd -W 2>/dev/null || pwd)/.home" HOME="$(pwd)/.home" pnpm exec next build )
+else
+  ( cd frontend && pnpm exec next build )
+fi
 
 echo
 echo "Setup finished. Start everything with:  bash scripts/local/run.sh"

@@ -28,3 +28,4 @@ docs/youtube-provider-registry*.json
 
 # Local run data (uploads, clips, logs)
 /data/
+/frontend/.home/

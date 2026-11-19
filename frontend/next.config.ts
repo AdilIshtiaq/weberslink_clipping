@@ -1,16 +1,15 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
-// Keep every build step inside this folder. Without this, Next.js can pick a lockfile in a
-// parent folder (for example the user profile on Windows) as the project root and scan it.
-const projectRoot = process.cwd();
-
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+// The Docker image runs Next.js's "standalone" server (the Dockerfile sets NEXT_STANDALONE=true).
+// Local runs use plain `next start`, which does not need that output mode.
+const standalone = process.env.NEXT_STANDALONE === "true";
 
 const nextConfig: NextConfig = {
   distDir: process.env.NEXT_BUILD_DIR || ".next",
-  output: 'standalone',
-  outputFileTracingRoot: projectRoot,
+  ...(standalone ? { output: "standalone" as const, outputFileTracingRoot: process.cwd() } : {}),
   // Keep canonical tags in the initial <head>, including for Googlebot.
   htmlLimitedBots: /.*/,
   typescript: {

@@ -81,4 +81,5 @@ Running on your own computer means only you can open it, unless you add a tunnel
 - **Setup cannot connect to PostgreSQL:** check the password, and that the PostgreSQL service is running.
 - **Port already in use:** another program uses 3107 or 8000. Close it, or stop the old run with Ctrl+C.
 - **Downloads time out or crawl:** on a slow connection run `export UV_HTTP_TIMEOUT=900 UV_CONCURRENT_DOWNLOADS=1` first, and retry in a loop: `cd backend && until uv sync; do sleep 10; done`.
+- **Website build fails with `EPERM ... Application Data`:** this happens when the project is on a different drive than your user folder. The setup script already works around it. To build by hand: `cd frontend && mkdir -p .home && USERPROFILE="$(pwd -W)/.home" HOME="$(pwd)/.home" pnpm exec next build`.
 - **Transcription or clip selection errors:** open `data/logs/worker.log`; usually a missing or wrong API key.
