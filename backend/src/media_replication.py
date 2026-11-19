@@ -9,7 +9,7 @@ acknowledge the exact revision. Credentials and signed URLs are never logged.
 from __future__ import annotations
 
 from contextlib import contextmanager
-import fcntl
+from .utils.platform_compat import fcntl, fsync_directory
 import hashlib
 import json
 import logging
@@ -77,11 +77,7 @@ class ReplicatedMediaClient:
         finally:
             temporary.unlink(missing_ok=True)
         # Also persist the directory entry, not only the payload/manifest data.
-        fd = os.open(directory, os.O_RDONLY)
-        try:
-            os.fsync(fd)
-        finally:
-            os.close(fd)
+        fsync_directory(directory)
 
     def _stage(self, directory, path, key, extra, *, pending=None, adopt=False):
         if adopt and (path.parent != directory or path.suffix != ".part"):

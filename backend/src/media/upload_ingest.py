@@ -9,7 +9,7 @@ sources above 1080p, both happen after the response: the copy on the worker
 
 from __future__ import annotations
 
-import fcntl
+from ..utils.platform_compat import fcntl, fsync_directory
 import hashlib
 import logging
 import os
@@ -61,11 +61,7 @@ def _fsync_file(path: Path) -> None:
     with path.open("rb+") as handle:
         handle.flush()
         os.fsync(handle.fileno())
-    directory = os.open(path.parent, os.O_RDONLY)
-    try:
-        os.fsync(directory)
-    finally:
-        os.close(directory)
+    fsync_directory(path.parent)
 
 
 def _write_sidecar(path: Path, reference: str) -> None:

@@ -11,6 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from ..media.upload_limits import upload_too_large_detail
 from ..utils.async_helpers import run_in_thread
+from ..utils.platform_compat import fsync_directory
 
 
 class UploadLimitReached(ValueError):
@@ -146,11 +147,7 @@ def _place_missing_upload(existing_path: str, new_path: str) -> None:
             os.replace(temporary, target)
         finally:
             temporary.unlink(missing_ok=True)
-    directory = os.open(target.parent, os.O_RDONLY)
-    try:
-        os.fsync(directory)
-    finally:
-        os.close(directory)
+    fsync_directory(target.parent)
 
 
 async def _restore_missing_upload(existing_path: str, storage_reference: str | None, new_path: str) -> None:

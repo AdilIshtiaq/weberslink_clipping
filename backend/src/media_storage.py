@@ -10,7 +10,7 @@ import asyncio
 from contextvars import ContextVar
 from contextlib import contextmanager
 from functools import wraps
-import fcntl
+from .utils.platform_compat import fcntl
 import hashlib
 import json
 import mimetypes

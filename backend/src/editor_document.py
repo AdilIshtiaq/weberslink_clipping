@@ -9,7 +9,7 @@ from __future__ import annotations
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Annotated, Literal
-import fcntl
+from .utils.platform_compat import fcntl
 import hashlib
 import json
 import os
