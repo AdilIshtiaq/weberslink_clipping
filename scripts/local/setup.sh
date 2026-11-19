@@ -77,8 +77,9 @@ else
   cat > .env <<ENV
 # Local run settings (created by scripts/local/setup.sh). Never commit this file.
 DB_PASSWORD=$DB_PASSWORD
-DATABASE_URL=postgresql+asyncpg://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME
-REDIS_HOST=localhost
+DATABASE_URL=postgresql+asyncpg://$DB_USER:$DB_PASSWORD@127.0.0.1:5432/$DB_NAME
+# 127.0.0.1, not "localhost": on Windows "localhost" can resolve to IPv6, which Redis does not listen on.
+REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 TEMP_DIR=$NATIVE_ROOT/data
 CORS_ORIGINS=http://localhost:3107

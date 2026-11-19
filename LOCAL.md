@@ -77,6 +77,7 @@ Running on your own computer means only you can open it, unless you add a tunnel
 
 ## If something fails
 
+- **API or worker log says `Timeout connecting to server` (Redis):** use the IPv4 address. In `.env` set `REDIS_HOST=127.0.0.1` (and use `127.0.0.1` instead of `localhost` in `DATABASE_URL`), then restart.
 - **"Redis is not running":** start Memurai (Windows Services) or `redis-server`.
 - **Setup cannot connect to PostgreSQL:** check the password, and that the PostgreSQL service is running.
 - **Port already in use:** another program uses 3107 or 8000. Close it, or stop the old run with Ctrl+C.
