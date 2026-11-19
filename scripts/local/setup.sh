@@ -116,7 +116,7 @@ ENV
 mkdir -p data/logs
 
 # ---------- 3. Dependencies and build ----------
-echo "Installing backend packages (this skips the large optional Whisper/torch download)..."
+echo "Installing backend packages (large the first time, because it includes torch; later runs are fast).."
 ( cd backend && uv sync )
 echo "Installing and building the frontend..."
 ( cd frontend && pnpm install --frozen-lockfile && pnpm run build )

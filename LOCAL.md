@@ -32,7 +32,7 @@ In Git Bash, from the project folder:
 bash scripts/local/setup.sh
 ```
 
-It asks for the PostgreSQL `postgres` password and your two keys, then creates the database, writes the settings files, installs the packages and builds the website. This takes a few minutes. It skips the large optional Whisper/torch download, which you only need for offline transcription.
+It asks for the PostgreSQL `postgres` password and your two keys, then creates the database, writes the settings files, installs the packages and builds the website. The first run downloads a lot (the backend includes torch, so expect several hundred MB, plus the website's packages). On a fast connection that is a few minutes; on a slow one it can take hours, and re-running the setup continues where it stopped. Later runs are quick.
 
 ## 3. Run
 
@@ -80,4 +80,5 @@ Running on your own computer means only you can open it, unless you add a tunnel
 - **"Redis is not running":** start Memurai (Windows Services) or `redis-server`.
 - **Setup cannot connect to PostgreSQL:** check the password, and that the PostgreSQL service is running.
 - **Port already in use:** another program uses 3107 or 8000. Close it, or stop the old run with Ctrl+C.
+- **Downloads time out or crawl:** on a slow connection run `export UV_HTTP_TIMEOUT=900 UV_CONCURRENT_DOWNLOADS=1` first, and retry in a loop: `cd backend && until uv sync; do sleep 10; done`.
 - **Transcription or clip selection errors:** open `data/logs/worker.log`; usually a missing or wrong API key.
