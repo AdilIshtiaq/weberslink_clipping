@@ -1,7 +1,7 @@
 {
   "generateCaption": "Generate caption",
   "generatingCaption": "Writing caption…",
-  "captionFailed": "Couldn't generate a caption. Try again or write your own.",
+  "captionFailed": "Couldn't generate suggestions. Try again or write your own.",
   "metrics": {
     "view": "view",
     "views": "views",
@@ -129,5 +129,17 @@
   "privacyLoadFailed": "Couldn’t load publishing options. Refresh and try again.",
   "tiktokPublicUnavailable": "Public isn’t available for this TikTok account. Check its privacy settings in TikTok, then refresh these options.",
   "tiktokPrivateAccountRequired": "TikTok hasn’t approved WeberslinkClip’s app yet, so it only accepts private posts from accounts set to Private. In TikTok, turn on Settings and privacy → Privacy → Private account before publishing.",
-  "tiktokPaused": "TikTok publishing is paused while we fix an issue with TikTok. Your other platforms work as usual."
+  "tiktokPaused": "TikTok publishing is paused while we fix an issue with TikTok. Your other platforms work as usual.",
+  "mentionsLabel": "Accounts to tag",
+  "mentionsPlaceholder": "@yourbrand, @partner",
+  "mentionsHint": "Saved in this browser. Suggestions only pick from this list, never other accounts.",
+  "suggestions": {
+    "title": "Post suggestions",
+    "whyViral": "Why it can go viral",
+    "location": "Location to tag",
+    "music": "Background music",
+    "musicNote": "Add it from the app's sound library when you post. Apps don't let other tools pick music for you.",
+    "copyLocation": "Copy location",
+    "copyMusic": "Copy music style"
+  }
 }

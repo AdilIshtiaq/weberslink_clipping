@@ -48,8 +48,45 @@ it("drafts a social caption when opening the scheduling form", async () => {
   fireEvent.click(screen.getByRole("button", { name: /publish/i }));
   await waitFor(() => expect(screen.getByLabelText("Caption")).toHaveValue("An engaging caption"));
   expect(fetch).toHaveBeenCalledWith("/api/social/captions", expect.objectContaining({
-    body: JSON.stringify({ task_id: "task-1", clip_id: "clip-1", provider: "youtube" }),
+    body: JSON.stringify({ task_id: "task-1", clip_id: "clip-1", provider: "youtube", mentions: [] }),
   }));
+});
+
+const packResponse = {
+  caption: "A bold opening line",
+  hashtags: ["podcast", "growth"],
+  location: "Lahore, Pakistan",
+  music: { style: "calm lo-fi, slow tempo", tip: "Search for lo-fi beats and keep it quiet under speech" },
+  why_viral: "It opens on a bold claim.",
+  mentions: ["@WebersLink"],
+};
+
+it("fills caption, hashtags and mentions and shows the location, music and viral note", async () => {
+  window.localStorage.setItem("weberslinkclip.post-mentions", "@WebersLink, partner");
+  vi.stubGlobal("fetch", vi.fn(async (url: string) => Response.json(url.includes("publishing-options") ? { privacy_levels: ["public", "private"] } : packResponse)));
+  render(<ClipPublishButton taskId="task-1" clip={clip} connections={[connection()]} providers={[provider()]} onChanged={vi.fn()} />);
+  fireEvent.click(screen.getByRole("button", { name: /publish/i }));
+  await waitFor(() => expect(screen.getByLabelText("Caption")).toHaveValue("A bold opening line\n\n@WebersLink"));
+  expect(screen.getByLabelText("Hashtags")).toHaveValue("podcast, growth");
+  const panel = screen.getByTestId("post-suggestions");
+  expect(panel).toHaveTextContent("It opens on a bold claim.");
+  expect(panel).toHaveTextContent("Lahore, Pakistan");
+  expect(panel).toHaveTextContent("calm lo-fi, slow tempo");
+  expect(fetch).toHaveBeenCalledWith("/api/social/captions", expect.objectContaining({
+    body: JSON.stringify({ task_id: "task-1", clip_id: "clip-1", provider: "youtube", mentions: ["WebersLink", "partner"] }),
+  }));
+  window.localStorage.removeItem("weberslinkclip.post-mentions");
+});
+
+it("keeps hashtags the user typed while suggestions were loading", async () => {
+  let finish!: (response: Response) => void;
+  vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise<Response>((resolve) => { finish = resolve; })));
+  render(<ClipPublishButton taskId="task-1" clip={clip} connections={[connection()]} providers={[provider()]} onChanged={vi.fn()} />);
+  fireEvent.click(screen.getByRole("button", { name: /publish/i }));
+  fireEvent.change(await screen.findByLabelText("Hashtags"), { target: { value: "mine" } });
+  finish(new Response(JSON.stringify(packResponse)));
+  await waitFor(() => expect(screen.getByTestId("post-suggestions")).toBeInTheDocument());
+  expect(screen.getByLabelText("Hashtags")).toHaveValue("mine");
 });
 
 it("preserves manual caption edits while generation is pending", async () => {
@@ -305,7 +342,7 @@ it("does not choose an account that requires reconnection", async () => {
   expect(screen.getByRole("checkbox", { name: /YouTube Shorts · My Channel/ })).toBeDisabled();
   expect(screen.getByRole("checkbox", { name: /TikTok · My TikTok/ })).toBeChecked();
   await waitFor(() => expect(screen.getByLabelText("Caption")).toHaveValue("A shared caption"));
-  expect(fetch).toHaveBeenCalledWith("/api/social/captions", expect.objectContaining({ body: JSON.stringify({ task_id: "task-1", clip_id: "clip-1", provider: "tiktok" }) }));
+  expect(fetch).toHaveBeenCalledWith("/api/social/captions", expect.objectContaining({ body: JSON.stringify({ task_id: "task-1", clip_id: "clip-1", provider: "tiktok", mentions: [] }) }));
 });
 
 it("validates a shared title before sending any selected account", async () => {

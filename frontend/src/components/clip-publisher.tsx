@@ -4,10 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
+import { useCopyText } from "@/lib/copy-text";
 import {
   AlertCircle,
   Check,
   Clock,
+  Copy,
   ExternalLink,
   Loader2,
   MoreHorizontal,
@@ -56,6 +58,8 @@ import {
   formatDateTime,
   formatMetric,
   parseHashtagInput,
+  parseMentionInput,
+  type PostPackSuggestions,
   type SocialConnection,
   type SocialPost,
   type SocialPostStatus,
@@ -163,6 +167,8 @@ function PostStatus({ post }: { post: SocialPost }) {
  * Toasts when a post the user is watching changes state, so publishing never
  * "just happens" silently. Statuses seen on first load are only recorded.
  */
+const MENTION_STORAGE_KEY = "weberslinkclip.post-mentions";
+
 export function useSocialPostToasts(posts: SocialPost[]) {
   const t = useTranslations("social");
   const seen = useRef<Map<string, SocialPostStatus> | null>(null);
@@ -316,6 +322,10 @@ export function ClipPublishButton({
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
   const [hashtags, setHashtags] = useState("");
+  const copyToClipboard = useCopyText();
+  const [mentionList, setMentionList] = useState("");
+  const [suggestions, setSuggestions] = useState<PostPackSuggestions | null>(null);
+  const hashtagRevision = useRef(0);
   const [privacyByAccount, setPrivacyByAccount] = useState<Record<string, SocialPrivacyLevel | "">>({});
   const [accountPrivacy, setAccountPrivacy] = useState<Record<string, { levels: SocialPrivacyLevel[]; requiresPrivateAccount?: boolean; loading?: boolean; error?: string }>>({});
   const optionsEpoch = useRef(0);
@@ -325,6 +335,14 @@ export function ClipPublishButton({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
   const captionRevision = useRef(0);
+  // The accounts to tag are remembered in this browser, so they only need typing once.
+  useEffect(() => {
+    try {
+      setMentionList(window.localStorage.getItem(MENTION_STORAGE_KEY) ?? "");
+    } catch {
+      /* storage can be unavailable; the field simply starts empty */
+    }
+  }, []);
   const captionRequest = useRef(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -393,20 +411,31 @@ export function ClipPublishButton({
     if (!connection) return;
     const request = ++captionRequest.current;
     const revision = captionRevision.current;
+    const hashtagsAtStart = hashtagRevision.current;
     setIsGeneratingCaption(true);
     setError(null);
     try {
       const response = await fetch("/api/social/captions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task_id: taskId, clip_id: clip.id, provider: connection.provider }),
+        body: JSON.stringify({ task_id: taskId, clip_id: clip.id, provider: connection.provider, mentions: parseMentionInput(mentionList) }),
       });
       if (!response.ok) throw new Error(await readError(response, t("captionFailed")));
       const data = await response.json();
       if (typeof data.caption !== "string" || !data.caption.trim()) throw new Error(t("captionFailed"));
       // A late response must never replace edits or a newer form's draft.
       if (request === captionRequest.current && revision === captionRevision.current) {
-        setCaption(data.caption);
+        const mentions: string[] = Array.isArray(data.mentions) ? data.mentions.filter((item: unknown) => typeof item === "string") : [];
+        setCaption(mentions.length ? `${data.caption}\n\n${mentions.join(" ")}` : data.caption);
+        if (hashtagRevision.current === hashtagsAtStart && Array.isArray(data.hashtags) && data.hashtags.length) {
+          setHashtags(data.hashtags.filter((item: unknown) => typeof item === "string").join(", "));
+        }
+        setSuggestions({
+          location: typeof data.location === "string" ? data.location : "",
+          musicStyle: typeof data.music?.style === "string" ? data.music.style : "",
+          musicTip: typeof data.music?.tip === "string" ? data.music.tip : "",
+          whyViral: typeof data.why_viral === "string" ? data.why_viral : "",
+        });
       }
     } catch (err) {
       if (request === captionRequest.current) {
@@ -440,6 +469,8 @@ export function ClipPublishButton({
       || (clip.workflow_role === "part" && clip.part_number ? tTask("partLabel", { n: clip.part_number }) : t("clipFallback", { order: clip.clip_order })));
     setCaption(plannedCaption || clip.text || "");
     setHashtags("");
+    hashtagRevision.current++;
+    setSuggestions(null);
     setSchedule(false);
     setScheduledFor(toLocalDateTimeInput(new Date(Date.now() + 60 * 60 * 1000)));
     setAccountIds(nextIds);
@@ -656,9 +687,67 @@ export function ClipPublishButton({
                     value={hashtags}
                     disabled={isSubmitting}
                     placeholder={t("hashtagsPlaceholder")}
-                    onChange={(event) => setHashtags(event.target.value)}
+                    onChange={(event) => {
+                      hashtagRevision.current++;
+                      setHashtags(event.target.value);
+                    }}
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor={`publish-mentions-${clip.id}`}>{t("mentionsLabel")}</Label>
+                  <Input
+                    id={`publish-mentions-${clip.id}`}
+                    value={mentionList}
+                    disabled={isSubmitting}
+                    placeholder={t("mentionsPlaceholder")}
+                    onChange={(event) => {
+                      setMentionList(event.target.value);
+                      try {
+                        window.localStorage.setItem(MENTION_STORAGE_KEY, event.target.value);
+                      } catch {
+                        /* not saved, still used for this session */
+                      }
+                    }}
+                  />
+                  <p className="text-xs text-muted-foreground">{t("mentionsHint")}</p>
+                </div>
+
+                {suggestions && (suggestions.location || suggestions.musicStyle || suggestions.whyViral) && (
+                  <div className="space-y-3 rounded-lg border bg-muted/30 p-3" data-testid="post-suggestions">
+                    <p className="text-sm font-medium">{t("suggestions.title")}</p>
+                    {suggestions.whyViral && (
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-medium text-muted-foreground">{t("suggestions.whyViral")}</p>
+                        <p className="text-sm">{suggestions.whyViral}</p>
+                      </div>
+                    )}
+                    {suggestions.location && (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-medium text-muted-foreground">{t("suggestions.location")}</p>
+                          <p className="text-sm">{suggestions.location}</p>
+                        </div>
+                        <Button type="button" size="sm" variant="ghost" aria-label={t("suggestions.copyLocation")} onClick={() => void copyToClipboard(suggestions.location)}>
+                          <Copy className="size-4" />
+                        </Button>
+                      </div>
+                    )}
+                    {suggestions.musicStyle && (
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-0.5">
+                          <p className="text-xs font-medium text-muted-foreground">{t("suggestions.music")}</p>
+                          <p className="text-sm">{suggestions.musicStyle}</p>
+                          {suggestions.musicTip && <p className="text-xs text-muted-foreground">{suggestions.musicTip}</p>}
+                          <p className="text-xs text-muted-foreground">{t("suggestions.musicNote")}</p>
+                        </div>
+                        <Button type="button" size="sm" variant="ghost" aria-label={t("suggestions.copyMusic")} onClick={() => void copyToClipboard(suggestions.musicStyle)}>
+                          <Copy className="size-4" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {selectedConnections.map((connection) => {
                   const result = submissions[connection.id];

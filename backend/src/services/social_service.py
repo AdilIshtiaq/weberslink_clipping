@@ -418,9 +418,12 @@ class SocialService:
     # Posts
     # ------------------------------------------------------------------
     async def generate_caption(
-        self, user_id: str, *, task_id: str, clip_id: str, provider: str
-    ) -> Dict[str, str]:
-        from .social_caption_service import generate_social_caption
+        self, user_id: str, *, task_id: str, clip_id: str, provider: str,
+        mentions: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        """Draft the post pack for a clip (caption, hashtags, location, music, mentions, why it can travel)."""
+        from ..ai import _build_transcript_model, _get_missing_llm_key_error
+        from .social_caption_service import generate_post_pack
 
         task = await self.task_repo.get_task_by_id(self.db, task_id)
         if not task or task.get("user_id") != user_id:
@@ -432,16 +435,16 @@ class SocialService:
             raise SocialValidationError("Unsupported social platform")
         if not (clip.get("text") or "").strip():
             raise SocialValidationError("This clip has no transcript to draft a caption from.")
-        if not self.config.anthropic_api_key:
-            raise SocialProviderUnavailable("Caption generation requires ANTHROPIC_API_KEY on the server.")
+        missing = _get_missing_llm_key_error(self.config.llm, self.config)
+        if missing:
+            raise SocialProviderUnavailable("Post suggestions need an AI model key on the server.")
         try:
-            caption = await generate_social_caption(self.config.anthropic_api_key, clip, provider)
+            return await generate_post_pack(_build_transcript_model(self.config), clip, provider, mentions)
         except Exception as exc:
-            logger.warning("Social caption generation failed (%s)", type(exc).__name__)
+            logger.warning("Social post pack generation failed (%s)", type(exc).__name__)
             raise SocialProviderUnavailable(
-                "Couldn't generate a caption. Try again or write your own."
+                "Couldn't generate suggestions. Try again or write your own."
             ) from exc
-        return {"caption": caption}
 
     async def create_post(
         self,

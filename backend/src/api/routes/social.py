@@ -193,15 +193,19 @@ async def list_posts(
 
 @router.post("/captions")
 async def generate_caption(request: Request, db: AsyncSession = Depends(get_db)):
-    """Draft a social caption without publishing or scheduling anything."""
+    """Draft a post pack (caption, hashtags, location, music, mentions) without publishing anything."""
     user_id = await _allowed_user_id(request, db)
     body = await _json_body(request)
     for field in ("task_id", "clip_id", "provider"):
         if not isinstance(body.get(field), str) or not body[field].strip():
             raise HTTPException(status_code=422, detail=f"{field} is required")
     try:
+        mentions = body.get("mentions") or []
+        if not isinstance(mentions, list) or len(mentions) > 20 or not all(isinstance(item, str) for item in mentions):
+            raise HTTPException(status_code=422, detail="mentions must be a list of up to 20 handles")
         return await _service(request, db).generate_caption(
-            user_id, task_id=body["task_id"], clip_id=body["clip_id"], provider=body["provider"]
+            user_id, task_id=body["task_id"], clip_id=body["clip_id"], provider=body["provider"],
+            mentions=mentions,
         )
     except SocialError as exc:
         raise _http_error(exc)

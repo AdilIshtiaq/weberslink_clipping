@@ -348,12 +348,30 @@ def service(provider, tmp_path):
     return svc
 
 
+PACK = {
+    "caption": "A post caption",
+    "hashtags": ["clips"],
+    "location": "Lahore",
+    "music": {"style": "calm lo-fi", "tip": "Keep it quiet under speech"},
+    "why_viral": "A clear hook in the first line.",
+    "mentions": ["@weberslink"],
+}
+
+
+def _ai_ready(monkeypatch):
+    from src import ai
+
+    monkeypatch.setattr(ai, "_get_missing_llm_key_error", lambda *args, **kwargs: None)
+    monkeypatch.setattr(ai, "_build_transcript_model", lambda *args, **kwargs: "test-model")
+
+
 async def test_generate_caption_checks_ownership_before_calling_model(service, monkeypatch):
     from unittest.mock import AsyncMock
     from src.services import social_caption_service
 
-    generate = AsyncMock(return_value="A post caption")
-    monkeypatch.setattr(social_caption_service, "generate_social_caption", generate)
+    _ai_ready(monkeypatch)
+    generate = AsyncMock(return_value=PACK)
+    monkeypatch.setattr(social_caption_service, "generate_post_pack", generate)
     with pytest.raises(SocialNotFound):
         await service.generate_caption("other-user", task_id="task-1", clip_id="clip-1", provider="youtube")
     with pytest.raises(SocialNotFound):
@@ -361,18 +379,31 @@ async def test_generate_caption_checks_ownership_before_calling_model(service, m
     generate.assert_not_awaited()
 
 
-async def test_generate_caption_does_not_create_a_post(service, monkeypatch):
+async def test_generate_caption_returns_the_post_pack_and_creates_no_post(service, monkeypatch):
     from unittest.mock import AsyncMock
     from src.services import social_caption_service
 
-    service.config.anthropic_api_key = "test-key"
-    generate = AsyncMock(return_value="A post caption")
-    monkeypatch.setattr(social_caption_service, "generate_social_caption", generate)
-    result = await service.generate_caption("user-1", task_id="task-1", clip_id="clip-1", provider="youtube")
-    assert result == {"caption": "A post caption"}
+    _ai_ready(monkeypatch)
+    generate = AsyncMock(return_value=PACK)
+    monkeypatch.setattr(social_caption_service, "generate_post_pack", generate)
+    result = await service.generate_caption(
+        "user-1", task_id="task-1", clip_id="clip-1", provider="youtube", mentions=["weberslink"]
+    )
+    assert result == PACK
+    assert generate.await_args.args[0] == "test-model"
     assert generate.await_args.args[1]["text"] == "Transcript text"
+    assert generate.await_args.args[3] == ["weberslink"]
     assert not service.repo.posts
     assert not service.queue_adapter.jobs
+
+
+async def test_generate_caption_needs_an_ai_model_key(service, monkeypatch):
+    from src import ai
+    from src.services.social_service import SocialProviderUnavailable
+
+    monkeypatch.setattr(ai, "_get_missing_llm_key_error", lambda *args, **kwargs: "GOOGLE_API_KEY is missing")
+    with pytest.raises(SocialProviderUnavailable, match="AI model key"):
+        await service.generate_caption("user-1", task_id="task-1", clip_id="clip-1", provider="youtube")
 
 
 async def test_generate_caption_failure_is_safe(service, monkeypatch):
@@ -380,8 +411,8 @@ async def test_generate_caption_failure_is_safe(service, monkeypatch):
     from src.services import social_caption_service
     from src.services.social_service import SocialProviderUnavailable
 
-    service.config.anthropic_api_key = "test-key"
-    monkeypatch.setattr(social_caption_service, "generate_social_caption", AsyncMock(side_effect=RuntimeError("secret")))
+    _ai_ready(monkeypatch)
+    monkeypatch.setattr(social_caption_service, "generate_post_pack", AsyncMock(side_effect=RuntimeError("secret")))
     with pytest.raises(SocialProviderUnavailable, match="Couldn't generate") as error:
         await service.generate_caption("user-1", task_id="task-1", clip_id="clip-1", provider="youtube")
     assert "secret" not in str(error.value)

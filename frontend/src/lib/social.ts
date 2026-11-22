@@ -171,6 +171,26 @@ export function parseHashtagInput(value: string): string[] {
     .filter(Boolean);
 }
 
+/** Turns "@brand, partner  @friend" into ["brand", "partner", "friend"]: valid handles only, no duplicates. */
+export function parseMentionInput(value: string): string[] {
+  const seen = new Set<string>();
+  const handles: string[] = [];
+  for (const raw of value.split(/[\s,]+/)) {
+    const handle = raw.replace(/^@+/, "").trim();
+    if (!/^[A-Za-z0-9._]{1,30}$/.test(handle) || seen.has(handle.toLowerCase())) continue;
+    seen.add(handle.toLowerCase());
+    handles.push(handle);
+  }
+  return handles.slice(0, 20);
+}
+
+export interface PostPackSuggestions {
+  location: string;
+  musicStyle: string;
+  musicTip: string;
+  whyViral: string;
+}
+
 export function durationBucketLabel(bucket: string): string {
   switch (bucket) {
     case "under_20s":
