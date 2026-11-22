@@ -184,6 +184,9 @@ export function parseMentionInput(value: string): string[] {
   return handles.slice(0, 20);
 }
 
+/** Where the accounts to tag are remembered in this browser. */
+export const MENTION_STORAGE_KEY = "weberslinkclip.post-mentions";
+
 export interface PostPackSuggestions {
   location: string;
   musicStyle: string;

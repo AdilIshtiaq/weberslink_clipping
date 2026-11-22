@@ -203,6 +203,8 @@ async def test_create_task_returns_serializable_subscription_gate(
     client, app, db_session, auth_headers
 ):
     app.state.config.monetization_enabled = True
+    # With early bird on, an account without a plan gets a free allowance instead of this gate.
+    app.state.config.early_bird_enabled = False
     await create_user(db_session, user_id="user-1", email="owner@example.com")
 
     response = await client.post(

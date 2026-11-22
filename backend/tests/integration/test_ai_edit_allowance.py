@@ -47,6 +47,8 @@ async def test_upgrade_keeps_used_edits_and_inactive_plans_cannot_submit(db_sess
     owner = str(uuid4())
     await create_user(db_session, user_id=owner, plan="pro", subscription_status="active")
     app.state.config.monetization_enabled = True
+    # Early bird would give a lapsed account its own free allowance; this test covers the paid rules.
+    app.state.config.early_bird_enabled = False
     service = quota.AIEditAllowanceService(db_session, app.state.config)
     await service.reserve(owner, uuid4().hex)
     await db_session.execute(text("UPDATE users SET plan='scale' WHERE id=:id"), {"id": owner})

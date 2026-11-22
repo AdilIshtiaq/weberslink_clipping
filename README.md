@@ -24,6 +24,7 @@ A product by [WebersLink](https://weberslink.org).
 - **Hook titles:** a short headline over the first seconds of each clip.
 - **B-roll and transitions:** optional stock footage overlays and transition effects.
 - **Editor:** trim, split and merge clips, fix a word, restyle captions, then export with TikTok, Reels or Shorts presets.
+- **Post ideas:** for each clip, a viral-style caption, hashtags, accounts to tag, a place to tag and a music idea, ready to copy into TikTok, Instagram or YouTube Shorts.
 - **Publishing:** connect YouTube, TikTok or Instagram and post or schedule from the task page.
 
 ## Plans

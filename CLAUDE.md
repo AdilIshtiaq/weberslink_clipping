@@ -176,7 +176,7 @@ PostgreSQL 15. Schema in `init.sql`. Mixed naming conventions:
 **Social publishing:**
 - `GET /social/providers`, `GET /social/connections` — configured platforms and connected accounts
 - `POST /social/connections/{provider}/authorize` + `/callback` — OAuth handshake (session auth only)
-- `POST /social/captions` — draft a post pack for a clip with the configured LLM: caption, hashtags, suggested location, music suggestion, mentions (only from the optional `mentions` handles the caller sends) and a one-line reason it can travel. Nothing is published
+- `POST /social/captions` — draft a post pack for a clip with the configured LLM: caption, hashtags, suggested location, music suggestion, mentions (only from the optional `mentions` handles the caller sends) and a one-line reason it can travel. Nothing is published, so any signed-in user can call it even when social publishing is off (the website's "Post ideas" button on every finished clip uses it)
 - `POST /social/posts` — publish or schedule a clip; `GET /social/posts?task_id=` — list with metrics
 - `POST /social/posts/{id}/cancel|retry|refresh-metrics`, `DELETE /social/posts/{id}`
 - `GET /social/performance` — metrics by hook type / platform / clip length (also fed into the AI prompt)

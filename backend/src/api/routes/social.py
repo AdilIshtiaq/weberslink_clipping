@@ -194,7 +194,9 @@ async def list_posts(
 @router.post("/captions")
 async def generate_caption(request: Request, db: AsyncSession = Depends(get_db)):
     """Draft a post pack (caption, hashtags, location, music, mentions) without publishing anything."""
-    user_id = await _allowed_user_id(request, db)
+    # Suggestions never publish anything, so they are open to any signed-in user even when
+    # social publishing is not enabled for the account.
+    user_id = await _user_id(request, db)
     body = await _json_body(request)
     for field in ("task_id", "clip_id", "provider"):
         if not isinstance(body.get(field), str) or not body[field].strip():

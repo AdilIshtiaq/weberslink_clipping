@@ -4,12 +4,11 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { useCopyText } from "@/lib/copy-text";
+import { PostSuggestionsPanel } from "@/components/post-suggestions-panel";
 import {
   AlertCircle,
   Check,
   Clock,
-  Copy,
   ExternalLink,
   Loader2,
   MoreHorizontal,
@@ -58,6 +57,7 @@ import {
   formatDateTime,
   formatMetric,
   parseHashtagInput,
+  MENTION_STORAGE_KEY,
   parseMentionInput,
   type PostPackSuggestions,
   type SocialConnection,
@@ -167,8 +167,6 @@ function PostStatus({ post }: { post: SocialPost }) {
  * Toasts when a post the user is watching changes state, so publishing never
  * "just happens" silently. Statuses seen on first load are only recorded.
  */
-const MENTION_STORAGE_KEY = "weberslinkclip.post-mentions";
-
 export function useSocialPostToasts(posts: SocialPost[]) {
   const t = useTranslations("social");
   const seen = useRef<Map<string, SocialPostStatus> | null>(null);
@@ -322,7 +320,6 @@ export function ClipPublishButton({
   const [title, setTitle] = useState("");
   const [caption, setCaption] = useState("");
   const [hashtags, setHashtags] = useState("");
-  const copyToClipboard = useCopyText();
   const [mentionList, setMentionList] = useState("");
   const [suggestions, setSuggestions] = useState<PostPackSuggestions | null>(null);
   const hashtagRevision = useRef(0);
@@ -713,41 +710,7 @@ export function ClipPublishButton({
                   <p className="text-xs text-muted-foreground">{t("mentionsHint")}</p>
                 </div>
 
-                {suggestions && (suggestions.location || suggestions.musicStyle || suggestions.whyViral) && (
-                  <div className="space-y-3 rounded-lg border bg-muted/30 p-3" data-testid="post-suggestions">
-                    <p className="text-sm font-medium">{t("suggestions.title")}</p>
-                    {suggestions.whyViral && (
-                      <div className="space-y-0.5">
-                        <p className="text-xs font-medium text-muted-foreground">{t("suggestions.whyViral")}</p>
-                        <p className="text-sm">{suggestions.whyViral}</p>
-                      </div>
-                    )}
-                    {suggestions.location && (
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="space-y-0.5">
-                          <p className="text-xs font-medium text-muted-foreground">{t("suggestions.location")}</p>
-                          <p className="text-sm">{suggestions.location}</p>
-                        </div>
-                        <Button type="button" size="sm" variant="ghost" aria-label={t("suggestions.copyLocation")} onClick={() => void copyToClipboard(suggestions.location)}>
-                          <Copy className="size-4" />
-                        </Button>
-                      </div>
-                    )}
-                    {suggestions.musicStyle && (
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="space-y-0.5">
-                          <p className="text-xs font-medium text-muted-foreground">{t("suggestions.music")}</p>
-                          <p className="text-sm">{suggestions.musicStyle}</p>
-                          {suggestions.musicTip && <p className="text-xs text-muted-foreground">{suggestions.musicTip}</p>}
-                          <p className="text-xs text-muted-foreground">{t("suggestions.musicNote")}</p>
-                        </div>
-                        <Button type="button" size="sm" variant="ghost" aria-label={t("suggestions.copyMusic")} onClick={() => void copyToClipboard(suggestions.musicStyle)}>
-                          <Copy className="size-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {suggestions && <PostSuggestionsPanel suggestions={suggestions} />}
 
                 {selectedConnections.map((connection) => {
                   const result = submissions[connection.id];

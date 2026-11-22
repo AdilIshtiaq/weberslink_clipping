@@ -74,6 +74,7 @@ import { VIDEO_SOURCE_LABELS, VideoSourceIcon, videoSourceKind, type VideoSource
 import { cn } from "@/lib/utils";
 import { FontSelectOption, type FontOption } from "@/components/font-select-option";
 import { ClipPostList, ClipPublishButton, useSocialPostToasts } from "@/components/clip-publisher";
+import { PostSuggestionsButton } from "@/components/post-suggestions";
 import {
   ACTIVE_POST_STATUSES,
   type SocialConnection,
@@ -817,13 +818,16 @@ export default function TaskPage() {
   );
 
   const publishButton = (clip: Clip) => task?.status === "completed" ? (
-    <ClipPublishButton
-      taskId={task.id}
-      clip={clip}
-      connections={socialConnections}
-      providers={socialProviders}
-      onChanged={loadSocialPosts}
-    />
+    <>
+      <PostSuggestionsButton taskId={task.id} clipId={clip.id} />
+      <ClipPublishButton
+        taskId={task.id}
+        clip={clip}
+        connections={socialConnections}
+        providers={socialProviders}
+        onChanged={loadSocialPosts}
+      />
+    </>
   ) : null;
 
   const renderTile = (clip: Clip, index: number) => (

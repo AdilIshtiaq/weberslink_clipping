@@ -141,5 +141,24 @@
     "musicNote": "Add it from the app's sound library when you post. Apps don't let other tools pick music for you.",
     "copyLocation": "Copy location",
     "copyMusic": "Copy music style"
+  },
+  "ideas": {
+    "button": "Post ideas",
+    "title": "Post ideas",
+    "description": "A caption, hashtags and more for this clip. Copy them into your post.",
+    "platform": "Platform",
+    "platforms": {
+      "tiktok": "TikTok",
+      "instagram": "Instagram",
+      "youtube": "YouTube Shorts"
+    },
+    "generating": "Writing your post…",
+    "regenerate": "Regenerate",
+    "caption": "Caption",
+    "hashtags": "Hashtags",
+    "mentions": "Tag:",
+    "copyCaption": "Copy caption",
+    "copyHashtags": "Copy hashtags",
+    "copyAll": "Copy full post"
   }
 }

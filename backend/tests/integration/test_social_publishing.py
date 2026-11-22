@@ -410,3 +410,46 @@ async def test_providers_report_tiktok_paused_by_its_flag(app, client, auth_head
     rows = await providers()
     assert rows["tiktok"]["configured"] is True and "paused" not in rows["tiktok"]
     feature_flags.clear_cache()
+
+
+@pytest.mark.asyncio
+async def test_post_suggestions_work_when_social_publishing_is_off(
+    social_setup, app, client, db_session, auth_headers, monkeypatch,
+):
+    """Suggestions publish nothing, so a signed-in user gets them without any social access."""
+    from unittest.mock import AsyncMock
+
+    from src import ai
+    from src.services import social_caption_service
+
+    _, payload = social_setup
+    monkeypatch.setattr(app.state.config, "social_publishing_access", "off")
+    monkeypatch.setattr(ai, "_get_missing_llm_key_error", lambda *args, **kwargs: None)
+    monkeypatch.setattr(ai, "_build_transcript_model", lambda *args, **kwargs: "test-model")
+    pack = {
+        "caption": "Can he finish in time?! 👀", "hashtags": ["challenge"], "location": "Lahore",
+        "music": {"style": "tense build", "tip": "Keep it quiet"}, "why_viral": "A clear countdown.",
+        "mentions": ["@WebersLink"],
+    }
+    generate = AsyncMock(return_value=pack)
+    monkeypatch.setattr(social_caption_service, "generate_post_pack", generate)
+    await db_session.execute(
+        text("UPDATE generated_clips SET text = 'A real transcript' WHERE id = :id"), {"id": payload["clip_id"]},
+    )
+    await db_session.commit()
+
+    # Publishing and account routes stay closed...
+    assert (await client.get("/social/connections", headers=auth_headers)).status_code == 403
+    # ...but suggestions are available, and only the caller's own mention list is passed on.
+    response = await client.post(
+        "/social/captions", headers=auth_headers,
+        json={"task_id": payload["task_id"], "clip_id": payload["clip_id"], "provider": "tiktok", "mentions": ["WebersLink"]},
+    )
+    assert response.status_code == 200
+    assert response.json() == pack
+    assert generate.await_args.args[3] == ["WebersLink"]
+    bad = await client.post(
+        "/social/captions", headers=auth_headers,
+        json={"task_id": payload["task_id"], "clip_id": payload["clip_id"], "provider": "tiktok", "mentions": "not-a-list"},
+    )
+    assert bad.status_code == 422
