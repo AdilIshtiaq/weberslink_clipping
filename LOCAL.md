@@ -50,7 +50,7 @@ Each time you start the app, Redis and PostgreSQL must be running (both start wi
 
 Your settings are in `.env` (created by setup, never committed).
 
-- `SELF_HOST=false` applies the plans and the free early bird allowance (300 minutes a month). Set `SELF_HOST=true` for unlimited personal use.
+- `SELF_HOST=false` applies the plans and the free early bird allowance (300 minutes a month). Set `SELF_HOST=true` for unlimited personal use (no minute limit, no plans). The longest video allowed then comes from `MAX_VIDEO_DURATION` in seconds (default 5400, which is 90 minutes); raise it, for example `MAX_VIDEO_DURATION=86400` for 24 hours. Remember that long videos cost more in transcription and AI usage, take longer, and need more disk space.
 - Change a key, then stop and start `run.sh` again.
 - If you change an address or a `NEXT_PUBLIC_*` value, rebuild the website: `cd frontend && pnpm run build`.
 
